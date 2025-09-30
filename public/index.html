@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cadastro de Fundações - Conveniar</title>
+  <style>
+    /* reset box sizing to make width:100% reliable */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      font-family: Inter, system-ui, Arial;
+      background: #f5f7fb;
+      color: #222;
+      padding: 20px;
+      text-align: left;
+      direction: ltr;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(20, 20, 40, 0.06);
+    }
+
+    h1 {
+      color: #ff6a00;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: 600;
+      text-align: left;
+    }
+
+    input,
+    select,
+    textarea {
+      display: block;
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      margin-top: 6px;
+      font-size: 14px;
+    }
+
+    button {
+      background: #ff6a00;
+      color: white;
+      border: 0;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+
+    .highlight {
+      background-color: yellow;
+      font-weight: bold;
+      padding: 0 2px;
+      border-radius: 3px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .row>div {
+      min-width: 0;
+    }
+
+    .message {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    .success {
+      background: #e6ffef;
+      color: #006b2f;
+    }
+
+    .error {
+      background: #ffe6e6;
+      color: #8b0000;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 16px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 8px 6px;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+    }
+
+    .actions button {
+      margin-right: 6px;
+      background: #eee;
+      color: #333;
+      padding: 6px 8px;
+      border-radius: 6px;
+    }
+
+    @media (max-width: 600px) {
+      .row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Cadastro de Fundações de Apoio</h1>
+
+    <form id="form">
+      <label>Nome</label>
+      <input id="nome" required />
+
+      <div class="row">
+        <div>
+          <label>CNPJ</label>
+          <input id="cnpj" required />
+        </div>
+        <div>
+          <label>Telefone</label>
+          <input id="telefone" />
+        </div>
+      </div>
+
+      <label>E-mail</label>
+      <input id="email" type="email" />
+
+      <label>Instituição apoiada</label>
+      <input id="instituicao" />
+
+      <input type="hidden" id="editingId" value="">
+
+      <button type="submit">Salvar</button>
+      <div id="msg" class="message" style="display:none"></div>
+    </form>
+
+    <hr />
+
+    <div>
+      <input id="searchAll" placeholder="Pesquisar" />
+    </div>
+
+    <table id="table" style="display:none">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>CNPJ</th>
+          <th>E-mail</th>
+          <th>Telefone</th>
+          <th>Instituição</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+
+</html>

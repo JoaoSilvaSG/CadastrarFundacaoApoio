@@ -1,0 +1,16 @@
+{
+  "name": "cadastrarfundacaoapoio",
+  "version": "1.0.0",
+  "description": "Desafio - cadastro de Fundações de Apoio",
+  "main": "server.js",
+  "scripts": {
+    "start": "start http://localhost:3000 && node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "sqlite3": "^5.1.6"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}

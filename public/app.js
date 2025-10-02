@@ -2,17 +2,18 @@ const apiBase = '/api/fundacoes';
 
 function byId(id) { return document.getElementById(id); }
 const form = byId('form');
-const msg = byId('msg');
 const table = byId('table');
 const tbody = table.querySelector('tbody');
 
-let allFundacoes = []; // cache local dos registros
+let allFundacoes = [];
 
-function showMessage(text, type='success') {
-  msg.style.display = 'block';
-  msg.className = 'message ' + (type === 'success' ? 'success' : 'error');
-  msg.innerText = text;
-  setTimeout(()=> { msg.style.display='none'; }, 5000);
+function showMessage(text, type = 'success') {
+  const toast = document.getElementById("toast");
+  toast.textContent = text;
+  toast.className = `toast show ${type}`;
+  setTimeout(() => {
+    toast.className = "toast";
+  }, 6000);
 }
 
 function clearForm() {
@@ -22,11 +23,14 @@ function clearForm() {
   byId('telefone').value = '';
   byId('instituicao').value = '';
   byId('editingId').value = '';
+
+  const cancelBtn = byId('cancelEditBtn');
+  if (cancelBtn) cancelBtn.style.display = "none";
 }
 
 function formatCNPJ(cnpj) {
   if (!cnpj) return '';
-  cnpj = String(cnpj).replace(/\D/g,'');
+  cnpj = String(cnpj).replace(/\D/g, '');
   return cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5");
 }
 
@@ -56,13 +60,32 @@ function itemMatchesTerm(item, term) {
 
 function renderList(items, searchTerm = '') {
   tbody.innerHTML = '';
+
   if (!items || !items.length) {
     table.style.display = 'none';
-    return;
-  }
-  table.style.display = '';
 
-  const term = (searchTerm || '').toString();
+    let noResults = document.getElementById("noResults");
+    if (!noResults) {
+      noResults = document.createElement("div");
+      noResults.id = "noResults";
+      noResults.style.marginTop = "16px";
+      noResults.style.textAlign = "center";
+      noResults.style.fontStyle = "italic";
+      noResults.style.color = "#666";
+      table.parentNode.appendChild(noResults);
+    }
+
+    if (searchTerm) {
+      noResults.textContent = "Nenhum registro encontrado na busca.";
+    } else {
+      noResults.textContent = "Nenhum registro cadastrado.";
+    }
+    return;
+  } else {
+    table.style.display = '';
+    const noResults = document.getElementById("noResults");
+    if (noResults) noResults.remove();
+  }
 
   items.forEach(it => {
     const tr = document.createElement('tr');
@@ -81,7 +104,6 @@ function renderList(items, searchTerm = '') {
     tbody.appendChild(tr);
   });
 
-  // attach handlers (usamos cache local allFundacoes para editar)
   tbody.querySelectorAll('.edit').forEach(b => b.onclick = async (e) => {
     const id = e.target.dataset.id;
     const item = allFundacoes.find(x => String(x.id) === String(id));
@@ -92,7 +114,8 @@ function renderList(items, searchTerm = '') {
       byId('telefone').value = item.telefone || '';
       byId('instituicao').value = item.instituicao || '';
       byId('editingId').value = item.id;
-      window.scrollTo({ top:0, behavior:'smooth' });
+      byId('cancelEditBtn').style.display = "inline-block";
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   });
 
@@ -110,7 +133,14 @@ function renderList(items, searchTerm = '') {
   });
 }
 
-// lista tudo e popula cache
+const cancelBtn = byId('cancelEditBtn');
+if (cancelBtn) {
+  cancelBtn.addEventListener('click', () => {
+    clearForm();
+    cancelBtn.style.display = "none";
+  });
+}
+
 async function listAll() {
   const resp = await fetch(apiBase);
   const json = await resp.json();
@@ -136,7 +166,7 @@ form.onsubmit = async (e) => {
     if (editing) {
       const resp = await fetch(`${apiBase}/${editing}`, {
         method: 'PUT',
-        headers: {'Content-Type':'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
       const json = await resp.json();
@@ -150,7 +180,7 @@ form.onsubmit = async (e) => {
     } else {
       const resp = await fetch(apiBase, {
         method: 'POST',
-        headers: {'Content-Type':'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
       const json = await resp.json();
@@ -170,7 +200,7 @@ form.onsubmit = async (e) => {
 
 function maskCNPJ(input) {
   if (!input) return;
-  input.addEventListener("input", function(e) {
+  input.addEventListener("input", function (e) {
     let value = e.target.value.replace(/\D/g, "");
     value = value.replace(/^(\d{2})(\d)/, "$1.$2");
     value = value.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
@@ -181,11 +211,24 @@ function maskCNPJ(input) {
 }
 function maskTelefone(input) {
   if (!input) return;
-  input.addEventListener("input", function(e) {
+  input.addEventListener("input", function (e) {
     let value = e.target.value.replace(/\D/g, "");
-    value = value.replace(/^(\d{2})(\d)/g, "($1) $2");
-    value = value.replace(/(\d)(\d{4})$/, "$1-$2");
-    e.target.value = value.substring(0, 15);
+
+    if (value.length > 11) value = value.substring(0, 11);
+
+    if (value.length > 10) {
+      // Celular (11 dígitos)
+      value = value.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
+    } else if (value.length > 6) {
+      // Fixo (até 10 dígitos)
+      value = value.replace(/^(\d{2})(\d{4})(\d{0,4})$/, "($1) $2-$3");
+    } else if (value.length > 2) {
+      value = value.replace(/^(\d{2})(\d{0,5})/, "($1) $2");
+    } else {
+      value = value.replace(/^(\d*)/, "($1");
+    }
+
+    e.target.value = value;
   });
 }
 
@@ -219,7 +262,7 @@ document.getElementById("searchAll").addEventListener("input", function () {
       td.innerHTML = td.textContent;
 
       if (term && td.textContent.toLowerCase().includes(term)) {
-        row.style.display = ""; 
+        row.style.display = "";
 
         const regex = new RegExp(`(${term})`, "gi");
         td.innerHTML = td.textContent.replace(regex, `<span class="highlight">$1</span>`);

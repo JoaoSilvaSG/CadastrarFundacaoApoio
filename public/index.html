@@ -87,12 +87,6 @@
       min-width: 0;
     }
 
-    .message {
-      margin-top: 12px;
-      padding: 10px;
-      border-radius: 8px;
-    }
-
     .success {
       background: #e6ffef;
       color: #006b2f;
@@ -122,6 +116,39 @@
       color: #333;
       padding: 6px 8px;
       border-radius: 6px;
+    }
+
+    .toast {
+      visibility: hidden;
+      min-width: 200px;
+      margin-left: -100px;
+      text-align: center;
+      border-radius: 8px;
+      padding: 12px;
+      position: fixed;
+      z-index: 1000;
+      left: 50%;
+      bottom: 30px;
+      font-size: 16px;
+      opacity: 0;
+      transition: opacity 0.5s, bottom 0.5s;
+      color: #fff;
+    }
+
+    .toast.show {
+      visibility: visible;
+      opacity: 1;
+      bottom: 50px;
+    }
+
+    .toast.success {
+      background-color: #28a745;
+      /* verde */
+    }
+
+    .toast.error {
+      background-color: #dc3545;
+      /* vermelho */
     }
 
     @media (max-width: 600px) {
@@ -160,7 +187,7 @@
       <input type="hidden" id="editingId" value="">
 
       <button type="submit">Salvar</button>
-      <div id="msg" class="message" style="display:none"></div>
+      <button type="button" id="cancelEditBtn" style="display:none; background:#999;">Cancelar Edição</button>
     </form>
 
     <hr />
@@ -184,6 +211,8 @@
     </table>
 
   </div>
+
+  <div id="toast" class="toast"></div>
 
   <script src="/app.js"></script>
 </body>

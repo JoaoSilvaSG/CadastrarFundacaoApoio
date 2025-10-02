@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS fundacoes (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   nome TEXT NOT NULL,
-  cnpj TEXT NOT NULL,
+  cnpj TEXT NOT NULL UNIQUE,
   email TEXT,
   telefone TEXT,
   instituicao TEXT,

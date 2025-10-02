@@ -25,6 +25,9 @@ class FoundationDAO {
       f.id = res.id;
       return f;
     } catch (err) {
+      if (err && err.message && err.message.includes('UNIQUE')) {
+        throw { status: 409, message: 'Já existe uma fundação com esse CNPJ.' };
+      }
       throw err;
     }
   }
